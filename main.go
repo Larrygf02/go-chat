@@ -22,6 +22,11 @@ func main() {
 		return nil
 	})
 
+	server.OnEvent("/", "chat message", func(s socketio.Conn, msg string) {
+		fmt.Println("messsage:", msg)
+		//s.Emit("reply", "have "+msg)
+	})
+
 	//http
 	http.Handle("/socket.io/", server)
 	http.Handle("/", http.FileServer(http.Dir("./public")))

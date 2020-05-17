@@ -19,14 +19,13 @@
             <div id="chat-app" class="card mt-4">
                 <div class="card-body">
                     <ul>
-                        <li>message 1</li>
-                        <li>message 2</li>
+                        <li v-for="m in messages">{{ m }}</li>
                     </ul>
                 </div>
                 <div class="card-footer">
                     <form>
-                        <input type="text" class="form-control">
-                        <button type="submit" name="btn btn-dark">Send</button>
+                        <input type="text" class="form-control" v-model="message">
+                        <button @click.prevent="sendMessage" type="submit" name="btn btn-dark btn-block">Send</button>
                     </form>
                 </div>
             </div>
