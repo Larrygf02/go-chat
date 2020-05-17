@@ -18,16 +18,15 @@ func main() {
 	// sockets
 	server.OnConnect("/", func(so socketio.Conn) error {
 		so.SetContext("")
-		so.Join("chat")
 		fmt.Println("Connected: ", so.ID())
 		return nil
 	})
 
 	server.OnEvent("/", "chat message", func(s socketio.Conn, msg string) {
 		fmt.Println("messsage:", msg)
-		s.Emit("reply all", msg)
+		//server.BroadcastToRoom("chat", "chat message", msg)
 		//s.Broadcast("chat", "reply all", msg)
-		//s.Emit("reply", "have "+msg)
+		s.Emit("chat message", msg)
 	})
 
 	server.OnError("/", func(s socketio.Conn, e error) {

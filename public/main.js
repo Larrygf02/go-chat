@@ -3,7 +3,7 @@ const socket = io();
 new Vue({
     el: "#chat-app",
     created() {
-        socket.on("reply all", msg => {
+        socket.on("chat message", function (msg) {
             console.log(msg);
         })
     },
