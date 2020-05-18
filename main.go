@@ -18,15 +18,17 @@ func main() {
 	// sockets
 	server.OnConnect("/", func(so socketio.Conn) error {
 		so.SetContext("")
+		so.Join("chat")
 		fmt.Println("Connected: ", so.ID())
 		return nil
 	})
 
 	server.OnEvent("/", "chat message", func(s socketio.Conn, msg string) {
 		fmt.Println("messsage:", msg)
-		//server.BroadcastToRoom("chat", "chat message", msg)
-		//s.Broadcast("chat", "reply all", msg)
-		s.Emit("chat message", msg)
+		// Emite al usuario mismo
+		// s.Emit("chat message", msg)
+		// Emite el mensaje a todos los usuarios de la sala
+		server.BroadcastToRoom("", "chat", "chat message", msg)
 	})
 
 	server.OnError("/", func(s socketio.Conn, e error) {
