@@ -5,12 +5,34 @@ import (
 	"log"
 	"net/http"
 
+	engineio "github.com/googollee/go-engine.io"
+	"github.com/googollee/go-engine.io/transport"
+	"github.com/googollee/go-engine.io/transport/polling"
+	"github.com/googollee/go-engine.io/transport/websocket"
 	socketio "github.com/googollee/go-socket.io"
+	"github.com/rs/cors"
 )
 
 func main() {
 	fmt.Println("Hello chat")
-	server, err := socketio.NewServer(nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+	})
+
+	pt := polling.Default
+
+	wt := websocket.Default
+	wt.CheckOrigin = func(req *http.Request) bool {
+		return true
+	}
+	server, err := socketio.NewServer(&engineio.Options{
+		Transports: []transport.Transport{
+			pt,
+			wt,
+		},
+	})
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,9 +47,6 @@ func main() {
 
 	server.OnEvent("/", "chat message", func(s socketio.Conn, msg string) {
 		fmt.Println("messsage:", msg)
-		// Emite al usuario mismo
-		// s.Emit("chat message", msg)
-		// Emite el mensaje a todos los usuarios de la sala
 		server.BroadcastToRoom("", "chat", "chat message", msg)
 	})
 
@@ -42,8 +61,16 @@ func main() {
 	go server.Serve()
 	defer server.Close()
 	//http
-	http.Handle("/socket.io/", server)
-	http.Handle("/", http.FileServer(http.Dir("./public")))
+	mux.Handle("/socket.io/", server)
+	//http.Handle("/", http.FileServer(http.Dir("./public")))
 	log.Println("Server on Port 3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost"},
+		AllowedMethods:   []string{"GET", "PUT", "OPTIONS", "POST", "DELETE"},
+		AllowCredentials: true,
+	})
+	// decorate existing handler with cors functionality set in c
+	handler := c.Handler(mux)
+	log.Fatal(http.ListenAndServe(":3000", handler))
+	//log.Fatal(http.ListenAndServe(":3000", nil))
 }
