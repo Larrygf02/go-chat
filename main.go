@@ -65,7 +65,7 @@ func main() {
 	//http.Handle("/", http.FileServer(http.Dir("./public")))
 	log.Println("Server on Port 3000")
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost"},
+		AllowedOrigins:   []string{"http://localhost:8080"},
 		AllowedMethods:   []string{"GET", "PUT", "OPTIONS", "POST", "DELETE"},
 		AllowCredentials: true,
 	})
